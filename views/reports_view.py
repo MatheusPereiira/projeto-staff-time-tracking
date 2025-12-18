@@ -151,3 +151,5 @@ class ReportsView(QWidget):
                 y = height - 50
 
         pdf.save()
+
+

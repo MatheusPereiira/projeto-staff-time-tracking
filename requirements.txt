@@ -1,4 +1,0 @@
-PyQt6
-bcrypt
-matplotlib
-reportlab
