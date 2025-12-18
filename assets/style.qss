@@ -1,0 +1,79 @@
+/* =========================
+   GERAL
+========================= */
+QWidget {
+    font-family: Segoe UI, Arial;
+    font-size: 13px;
+    background-color: #f5f6f8;
+    color: #1f2937;
+}
+
+/* =========================
+   LABELS
+========================= */
+QLabel {
+    font-size: 13px;
+}
+
+/* =========================
+   BOTÕES
+========================= */
+QPushButton {
+    background-color: #2563eb;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 8px;
+    min-height: 34px;
+}
+
+QPushButton:hover {
+    background-color: #1d4ed8;
+}
+
+QPushButton:pressed {
+    background-color: #1e40af;
+}
+
+QPushButton:disabled {
+    background-color: #9ca3af;
+    color: #e5e7eb;
+}
+
+/* =========================
+   INPUTS
+========================= */
+QLineEdit {
+    background-color: white;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    padding: 6px;
+    min-height: 30px;
+}
+
+QLineEdit:focus {
+    border: 1px solid #2563eb;
+}
+
+/* =========================
+   TABELAS
+========================= */
+QTableWidget {
+    background-color: white;
+    border: 1px solid #d1d5db;
+    gridline-color: #e5e7eb;
+}
+
+QHeaderView::section {
+    background-color: #e5e7eb;
+    padding: 6px;
+    border: none;
+    font-weight: bold;
+}
+
+/* =========================
+   MENSAGENS
+========================= */
+QMessageBox {
+    background-color: #f9fafb;
+}

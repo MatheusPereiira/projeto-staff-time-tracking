@@ -1,0 +1,14 @@
+[
+    {
+        "id": "2cb20c88-06a8-447e-b5f7-cc407e60e415",
+        "name": "Matheus Pereira Silva",
+        "role": "Developer",
+        "department": "Ti"
+    },
+    {
+        "id": 2,
+        "name": "Phelipe Harry",
+        "role": "QA",
+        "department": "Ti"
+    }
+]

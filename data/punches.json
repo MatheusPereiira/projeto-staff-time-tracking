@@ -1,0 +1,42 @@
+[
+    {
+        "employee_id": "matheus",
+        "type": "entrada",
+        "timestamp": "2025-12-15T19:56:48.016482"
+    },
+    {
+        "employee_id": "matheus",
+        "type": "intervalo",
+        "timestamp": "2025-12-15T19:56:58.802505"
+    },
+    {
+        "employee_id": "matheus",
+        "type": "retorno",
+        "timestamp": "2025-12-15T19:57:01.780305"
+    },
+    {
+        "employee_id": "matheus",
+        "type": "saida",
+        "timestamp": "2025-12-15T19:57:04.277427"
+    },
+    {
+        "employee_id": "Matheus",
+        "type": "entrada",
+        "timestamp": "2025-12-15T19:58:55.805139"
+    },
+    {
+        "employee_id": "Matheus",
+        "type": "saida",
+        "timestamp": "2025-12-15T19:59:03.050629"
+    },
+    {
+        "employee_id": "Matheus",
+        "type": "entrada",
+        "timestamp": "2025-12-16T11:34:33.360967"
+    },
+    {
+        "employee_id": "Matheus",
+        "type": "saida",
+        "timestamp": "2025-12-16T11:34:41.693656"
+    }
+]
