@@ -6,25 +6,16 @@ class EmployeeController:
         self.model = EmployeeModel()
 
     def list_all(self):
-        """
-        Retorna todos os funcionários
-        """
         return self.model.all()
 
-    def create(self, name, role, department):
-        """
-        Cria um novo funcionário
-        """
-        return self.model.add(name, role, department)
+    def create(self, name, username, role, department):
+        employee = {
+            "name": name,
+            "username": username,
+            "role": role,
+            "department": department
+        }
+        self.model.add(employee)
 
-    def update(self, employee_id, name, role, department):
-        """
-        Atualiza um funcionário existente
-        """
-        self.model.update(employee_id, name, role, department)
-
-    def delete(self, employee_id):
-        """
-        Remove um funcionário
-        """
-        self.model.delete(employee_id)
+    def get_by_username(self, username):
+        return self.model.find_by_username(username)

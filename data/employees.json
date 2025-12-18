@@ -2,12 +2,14 @@
     {
         "id": "2cb20c88-06a8-447e-b5f7-cc407e60e415",
         "name": "Matheus Pereira Silva",
+        "username": "matheus",
         "role": "Developer",
         "department": "Ti"
     },
     {
         "id": 2,
         "name": "Phelipe Harry",
+        "username": "phelippe",
         "role": "QA",
         "department": "Ti"
     }
