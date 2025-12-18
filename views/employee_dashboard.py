@@ -1,48 +1,69 @@
 from PyQt6.QtWidgets import (
-    QWidget, QVBoxLayout, QPushButton,
-    QLabel, QMessageBox
+    QWidget,
+    QVBoxLayout,
+    QPushButton,
+    QLabel,
+    QMessageBox
 )
+from PyQt6.QtCore import Qt
 
 from controllers.punch_controller import PunchController
-from views.reports_view import PunchHistoryView
+from views.reports_view import ReportsView
 
 
 class EmployeeDashboard(QWidget):
-    def __init__(self, user):
+    def __init__(self, employee):
         super().__init__()
-        self.user = user
+
+        self.employee = employee
         self.controller = PunchController()
 
         self.setWindowTitle("Registro de Ponto")
-        self.setFixedSize(400, 350)
+        self.setFixedSize(400, 420)
 
         layout = QVBoxLayout()
-        layout.addWidget(QLabel(f"Funcionário: {user['username']}"))
+        layout.setContentsMargins(20, 20, 20, 20)
+        layout.setSpacing(16)
 
-        self.btn_entry = QPushButton("Entrada")
-        self.btn_break = QPushButton("Intervalo")
-        self.btn_return = QPushButton("Retorno")
-        self.btn_exit = QPushButton("Saída")
-        self.btn_history = QPushButton("Ver Histórico")
+        # BLOCO DE INFORMAÇÕES 
+        info_label = QLabel(
+            f"Funcionário: {employee['name']}\n"
+            f"Usuário: {employee['username']}"
+        )
+        info_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        info_label.setStyleSheet("""
+            QLabel {
+                font-size: 14px;
+            }
+        """)
 
-        self.btn_entry.clicked.connect(lambda: self.punch("entrada"))
-        self.btn_break.clicked.connect(lambda: self.punch("intervalo"))
-        self.btn_return.clicked.connect(lambda: self.punch("retorno"))
-        self.btn_exit.clicked.connect(lambda: self.punch("saida"))
-        self.btn_history.clicked.connect(self.open_history)
+        layout.addWidget(info_label)
 
-        layout.addWidget(self.btn_entry)
-        layout.addWidget(self.btn_break)
-        layout.addWidget(self.btn_return)
-        layout.addWidget(self.btn_exit)
-        layout.addWidget(self.btn_history)
+        #BOTÕES
+        btn_entry = QPushButton("Entrada")
+        btn_break = QPushButton("Intervalo")
+        btn_return = QPushButton("Retorno")
+        btn_exit = QPushButton("Saída")
+        btn_report = QPushButton("Relatório de Horas")
+
+        btn_entry.clicked.connect(lambda: self.register("entrada"))
+        btn_break.clicked.connect(lambda: self.register("intervalo"))
+        btn_return.clicked.connect(lambda: self.register("retorno"))
+        btn_exit.clicked.connect(lambda: self.register("saida"))
+        btn_report.clicked.connect(self.open_report)
+
+        layout.addWidget(btn_entry)
+        layout.addWidget(btn_break)
+        layout.addWidget(btn_return)
+        layout.addWidget(btn_exit)
+        layout.addWidget(btn_report)
 
         self.setLayout(layout)
 
-    def punch(self, punch_type):
+    def register(self, punch_type):
         try:
             self.controller.register(
-                employee_id=self.user["username"],
+                employee_id=self.employee["id"],
                 punch_type=punch_type
             )
 
@@ -53,12 +74,8 @@ class EmployeeDashboard(QWidget):
             )
 
         except ValueError as e:
-            QMessageBox.warning(
-                self,
-                "Ação inválida",
-                str(e)
-            )
+            QMessageBox.warning(self, "Erro", str(e))
 
-    def open_history(self):
-        self.history_window = PunchHistoryView(self.user["username"])
-        self.history_window.show()
+    def open_report(self):
+        self.report_window = ReportsView(self.employee)
+        self.report_window.show()

@@ -1,28 +1,20 @@
 from utils.json_manager import JSONManager
-from utils.datetime_utils import now_iso
 
 
 class PunchModel:
     def __init__(self):
         self.db = JSONManager("punches.json")
 
-    def all(self) -> list:
+    def all(self):
         return self.db.read()
 
     def add(self, punch: dict):
-        punches = self.all()
-        punches.append(punch)
-        self.db.write(punches)
+        data = self.db.read()
+        data.append(punch)
+        self.db.write(data)
 
-    def by_employee(self, employee_id: str) -> list:
+    def by_employee(self, employee_id: str):
         return [
-            p for p in self.all()
+            p for p in self.db.read()
             if p["employee_id"] == employee_id
         ]
-
-    def register(self, employee_id: str, punch_type: str):
-        self.add({
-            "employee_id": employee_id,
-            "type": punch_type,
-            "timestamp": now_iso()
-        })

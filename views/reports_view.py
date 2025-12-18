@@ -1,36 +1,66 @@
 from PyQt6.QtWidgets import (
-    QWidget, QVBoxLayout, QTableWidget,
-    QTableWidgetItem, QLabel
+    QWidget, QVBoxLayout, QLabel, QPushButton
 )
+from PyQt6.QtCore import Qt
+from datetime import datetime
+
 from controllers.punch_controller import PunchController
-from utils.datetime_utils import format_br
 
 
-class PunchHistoryView(QWidget):
-    def __init__(self, employee_id):
+class ReportsView(QWidget):
+    def __init__(self, employee):
         super().__init__()
-        self.setWindowTitle("Histórico de Ponto")
-        self.setFixedSize(600, 400)
 
-        controller = PunchController()
-        punches = controller.history(employee_id)
+        self.employee = employee
+        self.controller = PunchController()
+
+        self.setWindowTitle("Relatório de Horas Trabalhadas")
+        self.setFixedSize(360, 240)
 
         layout = QVBoxLayout()
-        layout.addWidget(QLabel("Histórico de Registros"))
 
-        table = QTableWidget(len(punches), 3)
-        table.setHorizontalHeaderLabels([
-            "Tipo", "Data / Hora", "Funcionário"
-        ])
+        title = QLabel("Relatório de Horas")
+        title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        title.setStyleSheet("font-size:18px; font-weight:bold;")
 
-        for row, punch in enumerate(punches):
-            table.setItem(row, 0, QTableWidgetItem(punch["type"].capitalize()))
-            table.setItem(
-                row,
-                1,
-                QTableWidgetItem(format_br(punch["timestamp"]))
-            )
-            table.setItem(row, 2, QTableWidgetItem(punch["employee_id"]))
+        name = QLabel(f"Funcionário: {employee['name']}")
+        name.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        layout.addWidget(table)
+        total_hours = self.calculate_hours()
+
+        hours_label = QLabel(
+            f"Total de horas trabalhadas:\n{total_hours:.2f} h"
+        )
+        hours_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        hours_label.setStyleSheet("font-size:16px;")
+
+        btn_close = QPushButton("Fechar")
+        btn_close.clicked.connect(self.close)
+
+        layout.addWidget(title)
+        layout.addWidget(name)
+        layout.addSpacing(10)
+        layout.addWidget(hours_label)
+        layout.addStretch()
+        layout.addWidget(btn_close)
+
         self.setLayout(layout)
+
+    def calculate_hours(self):
+        punches = self.controller.list_by_employee(self.employee["id"])
+
+        total_hours = 0.0
+        entrada = None
+
+        for punch in punches:
+            time = datetime.fromisoformat(punch["timestamp"])
+
+            if punch["type"] == "entrada":
+                entrada = time
+
+            elif punch["type"] == "saida" and entrada:
+                diff = time - entrada
+                total_hours += diff.total_seconds() / 3600
+                entrada = None
+
+        return total_hours
