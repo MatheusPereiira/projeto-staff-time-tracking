@@ -2,15 +2,10 @@ from datetime import datetime
 
 
 def now_iso() -> str:
-    """Retorna data/hora atual em ISO 8601"""
     return datetime.now().isoformat()
 
 
 def now_str() -> str:
-    """
-    Alias para compatibilidade com PunchModel
-    Retorna ISO (não formatado)
-    """
     return now_iso()
 
 
