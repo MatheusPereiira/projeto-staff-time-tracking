@@ -1,3 +1,7 @@
+import csv
+from reportlab.lib.pagesizes import A4
+from reportlab.pdfgen import canvas
+
 from models.punch_model import PunchModel
 from models.employee_model import EmployeeModel
 from utils.datetime_utils import diff_hours
@@ -27,13 +31,11 @@ class ReportController:
 
         return round(total_hours, 2)
 
-
     def admin_summary(self):
         result = []
 
         for emp in self.employee_model.all():
             total = self.hours_by_employee(emp["id"])
-
             result.append({
                 "name": emp["name"],
                 "username": emp.get("username", ""),
@@ -42,18 +44,54 @@ class ReportController:
 
         return result
 
-    def list_all(self):
-        punches = self.punch_model.all()
-        employees = self.employee_model.all()
+ 
+    # EXPORTAÇÃO CSV
+    
+    def export_csv(self, file_path: str):
+        data = self.admin_summary()
 
-        emp_map = {e["id"]: e["name"] for e in employees}
+        with open(file_path, mode="w", newline="", encoding="utf-8") as file:
+            writer = csv.writer(file)
+            writer.writerow(["Nome", "Usuário", "Hrs.Trabalhadas"])
 
-        reports = []
-        for p in punches:
-            reports.append({
-                "employee": emp_map.get(p["employee_id"], "Desconhecido"),
-                "type": p["type"].capitalize(),
-                "timestamp": p["timestamp"]
-            })
+            for row in data:
+                writer.writerow([
+                    row["name"],
+                    row["username"],
+                    row["hours"]
+                ])
 
-        return reports
+    
+    # EXPORTAÇÃO PDF
+
+    def export_pdf(self, file_path: str):
+        data = self.admin_summary()
+
+        c = canvas.Canvas(file_path, pagesize=A4)
+        width, height = A4
+
+        y = height - 50
+        c.setFont("Helvetica-Bold", 14)
+        c.drawString(50, y, "Relatório de Horas Trabalhadas")
+
+        y -= 30
+        c.setFont("Helvetica-Bold", 10)
+        c.drawString(50, y, "Nome")
+        c.drawString(250, y, "Usuário")
+        c.drawString(400, y, "Horas")
+
+        y -= 15
+        c.setFont("Helvetica", 10)
+
+        for row in data:
+            if y < 50:
+                c.showPage()
+                y = height - 50
+                c.setFont("Helvetica", 10)
+
+            c.drawString(50, y, row["name"])
+            c.drawString(250, y, row["username"])
+            c.drawString(400, y, str(row["hours"]))
+            y -= 15
+
+        c.save()

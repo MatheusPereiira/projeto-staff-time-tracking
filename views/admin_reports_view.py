@@ -1,56 +1,95 @@
 from PyQt6.QtWidgets import (
-    QWidget, QVBoxLayout, QLabel,
-    QTableWidget, QTableWidgetItem,
-    QPushButton
+    QWidget, QVBoxLayout, QLabel, QTableWidget,
+    QTableWidgetItem, QPushButton, QHBoxLayout,
+    QFileDialog, QMessageBox, QHeaderView
 )
 from PyQt6.QtCore import Qt
+
 from controllers.report_controller import ReportController
-from datetime import datetime
 
 
 class AdminReportsView(QWidget):
     def __init__(self):
         super().__init__()
 
-        self.setWindowTitle("Relatórios Administrativos")
-        self.setFixedSize(700, 450)
+        self.setWindowTitle("Relatório Administrativo")
+        self.setFixedSize(900, 500)
 
         self.controller = ReportController()
 
         layout = QVBoxLayout()
 
-        title = QLabel("Relatório Geral de Pontos")
-        title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        title = QLabel("Relatório de Horas Trabalhadas")
         title.setStyleSheet("font-size: 18px; font-weight: bold;")
         layout.addWidget(title)
 
+        # Tabela
         self.table = QTableWidget()
-        self.table.setColumnCount(4)
+        self.table.setColumnCount(3)
         self.table.setHorizontalHeaderLabels([
-            "Funcionário", "Data", "Hora", "Tipo"
+            "Nome", "Usuário", "Horas Trabalhadas"
         ])
-        self.table.horizontalHeader().setStretchLastSection(True)
+
+        # Ajuste correto das colunas
+        header = self.table.horizontalHeader()
+        header.setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
+        header.setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
+        header.setSectionResizeMode(2, QHeaderView.ResizeMode.ResizeToContents)
 
         layout.addWidget(self.table)
 
-        btn_refresh = QPushButton("Atualizar Relatório")
-        btn_refresh.clicked.connect(self.load_data)
-        layout.addWidget(btn_refresh)
+        # Botões
+        btn_layout = QHBoxLayout()
+
+        btn_csv = QPushButton("Exportar CSV")
+        btn_pdf = QPushButton("Exportar PDF")
+
+        btn_csv.clicked.connect(self.export_csv)
+        btn_pdf.clicked.connect(self.export_pdf)
+
+        btn_layout.addWidget(btn_csv)
+        btn_layout.addWidget(btn_pdf)
+
+        layout.addLayout(btn_layout)
 
         self.setLayout(layout)
 
         self.load_data()
 
     def load_data(self):
-        reports = self.controller.list_all()
-        self.table.setRowCount(len(reports))
+        data = self.controller.admin_summary()
+        self.table.setRowCount(len(data))
 
-        for row, r in enumerate(reports):
-            dt = datetime.fromisoformat(r["timestamp"])
-            date_str = dt.strftime("%d/%m/%Y")
-            time_str = dt.strftime("%H:%M:%S")
+        for row, item in enumerate(data):
+            self.table.setItem(row, 0, QTableWidgetItem(item["name"]))
+            self.table.setItem(row, 1, QTableWidgetItem(item["username"]))
 
-            self.table.setItem(row, 0, QTableWidgetItem(r["employee"]))
-            self.table.setItem(row, 1, QTableWidgetItem(date_str))
-            self.table.setItem(row, 2, QTableWidgetItem(time_str))
-            self.table.setItem(row, 3, QTableWidgetItem(r["type"]))
+            hours_item = QTableWidgetItem(str(item["hours"]))
+            hours_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
+            self.table.setItem(row, 2, hours_item)
+
+    def export_csv(self):
+        path, _ = QFileDialog.getSaveFileName(
+            self, "Salvar CSV", "", "CSV Files (*.csv)"
+        )
+        if not path:
+            return
+
+        try:
+            self.controller.export_csv(path)
+            QMessageBox.information(self, "Sucesso", "Relatório CSV exportado.")
+        except Exception as e:
+            QMessageBox.critical(self, "Erro", str(e))
+
+    def export_pdf(self):
+        path, _ = QFileDialog.getSaveFileName(
+            self, "Salvar PDF", "", "PDF Files (*.pdf)"
+        )
+        if not path:
+            return
+
+        try:
+            self.controller.export_pdf(path)
+            QMessageBox.information(self, "Sucesso", "Relatório PDF exportado.")
+        except Exception as e:
+            QMessageBox.critical(self, "Erro", str(e))
