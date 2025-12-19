@@ -5,17 +5,11 @@ class EmployeeController:
     def __init__(self):
         self.model = EmployeeModel()
 
-    def list_all(self):
+    def all(self):
         return self.model.all()
 
-    def create(self, name, username, role, department):
-        employee = {
-            "name": name,
-            "username": username,
-            "role": role,
-            "department": department
-        }
+    def add(self, employee: dict):
         self.model.add(employee)
 
-    def get_by_username(self, username):
+    def get_by_username(self, username: str):
         return self.model.find_by_username(username)
