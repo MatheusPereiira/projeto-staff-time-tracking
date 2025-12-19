@@ -1,17 +1,13 @@
 from PyQt6.QtWidgets import (
-    QWidget,
-    QVBoxLayout,
-    QPushButton,
-    QLabel,
-    QMessageBox
+    QWidget, QVBoxLayout, QPushButton,
+    QLabel, QMessageBox
 )
-from PyQt6.QtCore import Qt
 
 from controllers.punch_controller import PunchController
 from views.reports_view import ReportsView
 
 
-class EmployeeDashboard(QWidget):
+class EmployeeDashboard(QWidget): 
     def __init__(self, employee):
         super().__init__()
 
@@ -22,24 +18,13 @@ class EmployeeDashboard(QWidget):
         self.setFixedSize(400, 420)
 
         layout = QVBoxLayout()
-        layout.setContentsMargins(20, 20, 20, 20)
-        layout.setSpacing(16)
 
-        # BLOCO DE INFORMAÇÕES 
-        info_label = QLabel(
-            f"Funcionário: {employee['name']}\n"
-            f"Usuário: {employee['username']}"
-        )
-        info_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
-        info_label.setStyleSheet("""
-            QLabel {
-                font-size: 14px;
-            }
-        """)
+        label_employee = QLabel(f"Funcionário: {employee['name']}")
+        label_user = QLabel(f"Usuário: {employee['username']}")
 
-        layout.addWidget(info_label)
+        layout.addWidget(label_employee)
+        layout.addWidget(label_user)
 
-        #BOTÕES
         btn_entry = QPushButton("Entrada")
         btn_break = QPushButton("Intervalo")
         btn_return = QPushButton("Retorno")
@@ -66,13 +51,11 @@ class EmployeeDashboard(QWidget):
                 employee_id=self.employee["id"],
                 punch_type=punch_type
             )
-
             QMessageBox.information(
                 self,
                 "Sucesso",
                 f"Ponto registrado: {punch_type.capitalize()}"
             )
-
         except ValueError as e:
             QMessageBox.warning(self, "Erro", str(e))
 
