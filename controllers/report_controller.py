@@ -44,15 +44,32 @@ class ReportController:
 
         return result
 
+
+    # DADOS PARA O DASHBOARD
  
-    # EXPORTAÇÃO CSV
-    
+    def dashboard_metrics(self):
+        data = self.admin_summary()
+
+        total_employees = len(data)
+        total_hours = sum(item["hours"] for item in data)
+        avg_hours = round(total_hours / total_employees, 2) if total_employees else 0
+
+        top_employee = max(data, key=lambda x: x["hours"], default=None)
+
+        return {
+            "total_employees": total_employees,
+            "total_hours": round(total_hours, 2),
+            "average_hours": avg_hours,
+            "top_employee": top_employee
+        }
+
+    # EXPORTAÇÕES
     def export_csv(self, file_path: str):
         data = self.admin_summary()
 
         with open(file_path, mode="w", newline="", encoding="utf-8") as file:
             writer = csv.writer(file)
-            writer.writerow(["Nome", "Usuário", "Hrs.Trabalhadas"])
+            writer.writerow(["Nome", "Usuário", "Horas Trabalhadas"])
 
             for row in data:
                 writer.writerow([
@@ -60,9 +77,6 @@ class ReportController:
                     row["username"],
                     row["hours"]
                 ])
-
-    
-    # EXPORTAÇÃO PDF
 
     def export_pdf(self, file_path: str):
         data = self.admin_summary()
