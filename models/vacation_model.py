@@ -1,10 +1,10 @@
-from utils.json_manager import JSONManager
+from utils.json_manager import JsonManager
 
 VAC_FILE = "data/vacations.json"
 
 class VacationModel:
     def __init__(self):
-        self.vacations = JSONManager.load(VAC_FILE, [])
+        self.vacations = JsonManager.load(VAC_FILE, [])
 
     def add(self, employee_id, start, end):
         self.vacations.append({
@@ -12,4 +12,4 @@ class VacationModel:
             "start": start,
             "end": end
         })
-        JSONManager.save(VAC_FILE, self.vacations)
+        JsonManager.save(VAC_FILE, self.vacations)

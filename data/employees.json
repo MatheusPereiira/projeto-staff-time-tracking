@@ -12,5 +12,35 @@
         "username": "phelippe",
         "role": "QA",
         "department": "Ti"
+    },
+    {
+        "id": "e568e1fc-e009-40eb-812b-233cbba3e0a0",
+        "name": "Augusto Batista",
+        "role": "DBA",
+        "department": "Ti"
+    },
+    {
+        "id": "67dce877-4712-4458-bf3e-c24ef52a680e",
+        "name": "Ryan Braz",
+        "role": "Developer",
+        "department": "Ti"
+    },
+    {
+        "id": "5743cdf1-c492-42c7-9579-3158bc33256e",
+        "name": "Andre Soares",
+        "role": "DevOps",
+        "department": "Ti"
+    },
+    {
+        "id": "c550103d-b4ff-4fbd-a03c-cba05dc4a96b",
+        "name": "Gustavo Furtado",
+        "role": "QA",
+        "department": "Ti"
+    },
+    {
+        "id": "0377cb05-5ae7-4fa4-833d-ab332916c830",
+        "name": "Julio Cesar",
+        "role": "DBA",
+        "department": "Ti"
     }
 ]

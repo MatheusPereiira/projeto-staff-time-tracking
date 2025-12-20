@@ -1,20 +1,40 @@
-from utils.json_manager import JSONManager
+import uuid
+from utils.json_manager import JsonManager
 
 
 class EmployeeModel:
     def __init__(self):
-        self.db = JSONManager("employees.json")
+        self.storage = JsonManager("data/employees.json")
 
     def all(self):
-        return self.db.read()
+        return self.storage.read()
 
-    def add(self, employee: dict):
-        data = self.db.read()
-        data.append( employee )
-        self.db.write(data)
+    def create(self, data: dict):
+        employees = self.storage.read()
 
-    def find_by_username(self, username: str):
-        for emp in self.db.read():
-            if emp.get("username") == username:
-                return emp
-        return None
+        new_employee = {
+            "id": str(uuid.uuid4()),
+            "name": data["name"],
+            "role": data["role"],
+            "department": data["department"]
+        }
+
+        employees.append(new_employee)
+        self.storage.write(employees)
+
+        return new_employee
+
+    def delete(self, employee_id: str):
+        employees = self.storage.read()
+        employees = [e for e in employees if e["id"] != employee_id]
+        self.storage.write(employees)
+
+    def update(self, employee_id: str, data: dict):
+        employees = self.storage.read()
+
+        for emp in employees:
+            if emp["id"] == employee_id:
+                emp.update(data)
+                break
+
+        self.storage.write(employees)

@@ -1,10 +1,10 @@
-from utils.json_manager import JSONManager
+from utils.json_manager import JsonManager
 from datetime import datetime
 
 
 class PunchModel:
     def __init__(self):
-        self.db = JSONManager("punches.json")
+        self.db = JsonManager("punches.json")
 
     def all(self):
         return self.db.read()

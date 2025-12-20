@@ -4,7 +4,7 @@ from PyQt6.QtWidgets import (
     QHeaderView, QMessageBox
 )
 from PyQt6.QtCore import Qt
-
+from views.employee_form_dialog import EmployeeFormDialog
 from controllers.employee_controller import EmployeeController
 from controllers.report_controller import ReportController
 from views.admin_reports_view import AdminReportsView
@@ -179,10 +179,10 @@ class AdminDashboard(QWidget):
         self.reports_window.show()
 
     def add_employee(self):
-        QMessageBox.information(
-            self, "Novo Funcionário",
-            "Aqui você pode abrir um formulário para cadastrar funcionário."
-        )
+        dialog = EmployeeFormDialog(self)
+        if dialog.exec():
+            self.load_data()
+
 
     def edit_employee(self):
         row = self.table.currentRow()

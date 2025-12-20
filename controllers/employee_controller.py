@@ -8,8 +8,11 @@ class EmployeeController:
     def all(self):
         return self.model.all()
 
-    def add(self, employee: dict):
-        self.model.add(employee)
+    def create(self, data: dict):
+        return self.model.create(data)
 
-    def get_by_username(self, username: str):
-        return self.model.find_by_username(username)
+    def delete(self, employee_id: str):
+        return self.model.delete(employee_id)
+
+    def update(self, employee_id: str, data: dict):
+        return self.model.update(employee_id, data)

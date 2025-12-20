@@ -1,20 +1,18 @@
-from utils.json_manager import JSONManager
+from utils.json_manager import JsonManager
 
 
 class UserModel:
     def __init__(self):
-        self.db = JSONManager("users.json")
+        self.storage = JsonManager("data/users.json")
 
-    def all(self) -> list:
-        return self.db.read()
+    def all(self):
+        return self.storage.read()
 
-    def add(self, user: dict):
-        users = self.all()
-        users.append(user)
-        self.db.write(users)
+    def find_by_username(self, username):
+        users = self.storage.read()
+        return next((u for u in users if u["username"] == username), None)
 
-    def find_by_username(self, username: str):
-        for user in self.all():
-            if user["username"] == username:
-                return user
-        return None
+    def create(self, data):
+        users = self.storage.read()
+        users.append(data)
+        self.storage.write(users)
