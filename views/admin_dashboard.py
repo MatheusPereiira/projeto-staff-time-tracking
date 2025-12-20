@@ -1,8 +1,9 @@
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel,
     QPushButton, QTableWidget, QTableWidgetItem,
-    QHeaderView
+    QHeaderView, QDateEdit
 )
+from PyQt6.QtCore import QDate
 
 from controllers.employee_controller import EmployeeController
 from controllers.report_controller import ReportController
@@ -21,20 +22,37 @@ class AdminDashboard(QWidget):
         self.init_ui()
         self.load_data()
 
-    
-    # UI PRINCIPAL
-    
     def init_ui(self):
         main_layout = QVBoxLayout(self)
         main_layout.setSpacing(20)
         main_layout.setContentsMargins(24, 24, 24, 24)
 
-        # TÍTULO
         title = QLabel("Dashboard Administrativo")
         title.setObjectName("DashboardTitle")
         main_layout.addWidget(title)
 
-        # CARDS
+        #FILTROS
+        filter_layout = QHBoxLayout()
+
+        self.start_date = QDateEdit(QDate.currentDate().addMonths(-1))
+        self.start_date.setCalendarPopup(True)
+
+        self.end_date = QDateEdit(QDate.currentDate())
+        self.end_date.setCalendarPopup(True)
+
+        btn_filter = QPushButton("Aplicar Filtro")
+        btn_filter.clicked.connect(self.load_data)
+
+        filter_layout.addWidget(QLabel("De:"))
+        filter_layout.addWidget(self.start_date)
+        filter_layout.addWidget(QLabel("Até:"))
+        filter_layout.addWidget(self.end_date)
+        filter_layout.addWidget(btn_filter)
+        filter_layout.addStretch()
+
+        main_layout.addLayout(filter_layout)
+
+        #CARDS
         cards_layout = QHBoxLayout()
         cards_layout.setSpacing(20)
 
@@ -42,7 +60,7 @@ class AdminDashboard(QWidget):
             "Funcionários", "Ativos no sistema"
         )
         self.card_total_hours = self.create_card(
-            "Horas Totais", "Período atual"
+            "Horas Totais", "Período filtrado"
         )
         self.card_average = self.create_card(
             "Média / Funcionário", "Horas médias"
@@ -58,21 +76,7 @@ class AdminDashboard(QWidget):
 
         main_layout.addLayout(cards_layout)
 
-        # AÇÕES
-        actions_layout = QHBoxLayout()
-        actions_layout.addStretch()
-
-        btn_reports = QPushButton("Relatórios")
-        btn_reports.clicked.connect(self.open_reports)
-
-        btn_refresh = QPushButton("Atualizar")
-        btn_refresh.clicked.connect(self.load_data)
-
-        actions_layout.addWidget(btn_reports)
-        actions_layout.addWidget(btn_refresh)
-        main_layout.addLayout(actions_layout)
-
-        # TABELA
+        #TABELA
         self.table = QTableWidget()
         self.table.setColumnCount(3)
         self.table.setHorizontalHeaderLabels(
@@ -81,27 +85,14 @@ class AdminDashboard(QWidget):
 
         header = self.table.horizontalHeader()
         header.setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
-
         self.table.verticalHeader().setVisible(False)
-        self.table.setSelectionBehavior(
-            QTableWidget.SelectionBehavior.SelectRows
-        )
-        self.table.setEditTriggers(
-            QTableWidget.EditTrigger.NoEditTriggers
-        )
 
         main_layout.addWidget(self.table)
 
-    
-    # COMPONENTES
-    
     def create_card(self, title_text, subtitle_text):
         card = QWidget()
         card.setObjectName("Card")
-
         layout = QVBoxLayout(card)
-        layout.setSpacing(4)
-        layout.setContentsMargins(16, 16, 16, 16)
 
         title = QLabel(title_text)
         title.setObjectName("CardTitle")
@@ -122,10 +113,7 @@ class AdminDashboard(QWidget):
     def create_highlight_card(self, title_text, subtitle_text):
         card = QWidget()
         card.setObjectName("HighlightCard")
-
         layout = QVBoxLayout(card)
-        layout.setSpacing(4)
-        layout.setContentsMargins(16, 16, 16, 16)
 
         title = QLabel(title_text)
         title.setObjectName("CardTitle")
@@ -143,12 +131,12 @@ class AdminDashboard(QWidget):
         card.value_label = value
         return card
 
-    
-    # DADOS
-    
     def load_data(self):
+        start = self.start_date.date().toString("yyyy-MM-dd")
+        end = self.end_date.date().toString("yyyy-MM-dd")
+
         employees = self.employee_controller.all()
-        summary = self.report_controller.admin_summary()
+        summary = self.report_controller.admin_summary(start, end)
 
         total_employees = len(employees)
         total_hours = sum(item["hours"] for item in summary)
@@ -157,9 +145,7 @@ class AdminDashboard(QWidget):
             if total_employees > 0 else 0
         )
 
-        highlight = max(
-            summary, key=lambda x: x["hours"], default=None
-        )
+        highlight = max(summary, key=lambda x: x["hours"], default=None)
 
         self.card_employees.value_label.setText(str(total_employees))
         self.card_total_hours.value_label.setText(f"{total_hours:.1f} h")
@@ -172,15 +158,12 @@ class AdminDashboard(QWidget):
         else:
             self.card_highlight.value_label.setText("-")
 
-        self.table.setRowCount(len(employees))
-        for row, emp in enumerate(employees):
+        self.table.setRowCount(len(summary))
+        for row, emp in enumerate(summary):
             self.table.setItem(row, 0, QTableWidgetItem(emp["name"]))
             self.table.setItem(row, 1, QTableWidgetItem(emp["role"]))
             self.table.setItem(row, 2, QTableWidgetItem(emp["department"]))
 
-    
-    # AÇÕES
-    
     def open_reports(self):
         self.reports_window = AdminReportsView()
         self.reports_window.show()

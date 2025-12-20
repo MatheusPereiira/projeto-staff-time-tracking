@@ -1,6 +1,7 @@
 import csv
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
+from datetime import datetime
 
 from models.punch_model import PunchModel
 from models.employee_model import EmployeeModel
@@ -12,8 +13,8 @@ class ReportController:
         self.punch_model = PunchModel()
         self.employee_model = EmployeeModel()
 
-    def hours_by_employee(self, employee_id: str):
-        punches = self.punch_model.by_employee(employee_id)
+    def hours_by_employee(self, employee_id: str, start=None, end=None):
+        punches = self.punch_model.by_employee(employee_id, start, end)
 
         total_hours = 0.0
         last_entry = None
@@ -31,30 +32,33 @@ class ReportController:
 
         return round(total_hours, 2)
 
-    def admin_summary(self):
+    def admin_summary(self, start=None, end=None):
         result = []
 
         for emp in self.employee_model.all():
-            total = self.hours_by_employee(emp["id"])
+            total = self.hours_by_employee(emp["id"], start, end)
             result.append({
                 "name": emp["name"],
                 "username": emp.get("username", ""),
-                "hours": total
+                "hours": total,
+                "role": emp["role"],
+                "department": emp["department"]
             })
 
         return result
 
-
-    # DADOS PARA O DASHBOARD
- 
-    def dashboard_metrics(self):
-        data = self.admin_summary()
+    def dashboard_metrics(self, start=None, end=None):
+        data = self.admin_summary(start, end)
 
         total_employees = len(data)
         total_hours = sum(item["hours"] for item in data)
-        avg_hours = round(total_hours / total_employees, 2) if total_employees else 0
+        avg_hours = round(
+            total_hours / total_employees, 2
+        ) if total_employees else 0
 
-        top_employee = max(data, key=lambda x: x["hours"], default=None)
+        top_employee = max(
+            data, key=lambda x: x["hours"], default=None
+        )
 
         return {
             "total_employees": total_employees,
@@ -63,7 +67,7 @@ class ReportController:
             "top_employee": top_employee
         }
 
-    # EXPORTAÇÕES
+    # EXPORTAÇÕES 
     def export_csv(self, file_path: str):
         data = self.admin_summary()
 
