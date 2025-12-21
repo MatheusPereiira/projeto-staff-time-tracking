@@ -4,6 +4,7 @@ from PyQt6.QtWidgets import (
     QHeaderView, QMessageBox
 )
 from PyQt6.QtCore import Qt
+
 from views.employee_form_dialog import EmployeeFormDialog
 from controllers.employee_controller import EmployeeController
 from controllers.report_controller import ReportController
@@ -22,7 +23,7 @@ class AdminDashboard(QWidget):
         self.init_ui()
         self.load_data()
 
-    #  UI 
+    # ================= UI =================
 
     def init_ui(self):
         main_layout = QVBoxLayout(self)
@@ -50,7 +51,7 @@ class AdminDashboard(QWidget):
 
         main_layout.addLayout(cards_layout)
 
-        # AÇÕES GERAIS
+        # AÇÕES GERAIS (Relatórios / Atualizar)
         actions_layout = QHBoxLayout()
         actions_layout.addStretch()
 
@@ -62,6 +63,7 @@ class AdminDashboard(QWidget):
 
         actions_layout.addWidget(btn_reports)
         actions_layout.addWidget(btn_refresh)
+
         main_layout.addLayout(actions_layout)
 
         # AÇÕES DA TABELA
@@ -103,7 +105,7 @@ class AdminDashboard(QWidget):
 
         main_layout.addWidget(self.table)
 
-    # COMPONENTES 
+    # ================= COMPONENTES =================
 
     def create_card(self, title_text):
         card = QWidget()
@@ -143,13 +145,13 @@ class AdminDashboard(QWidget):
         card.value_label = value
         return card
 
-    # DADOS 
+    # ================= DADOS =================
 
     def load_data(self):
-        employees = self.employee_controller.all()
+        self.employees = self.employee_controller.all()
         summary = self.report_controller.admin_summary()
 
-        total_employees = len(employees)
+        total_employees = len(self.employees)
         total_hours = sum(item["hours"] for item in summary)
         avg_hours = total_hours / total_employees if total_employees else 0
 
@@ -166,13 +168,13 @@ class AdminDashboard(QWidget):
         else:
             self.card_highlight.value_label.setText("-")
 
-        self.table.setRowCount(len(employees))
-        for row, emp in enumerate(employees):
+        self.table.setRowCount(len(self.employees))
+        for row, emp in enumerate(self.employees):
             self.table.setItem(row, 0, QTableWidgetItem(emp["name"]))
             self.table.setItem(row, 1, QTableWidgetItem(emp["role"]))
             self.table.setItem(row, 2, QTableWidgetItem(emp["department"]))
 
-    #AÇÕES
+    # ================= AÇÕES =================
 
     def open_reports(self):
         self.reports_window = AdminReportsView()
@@ -183,16 +185,16 @@ class AdminDashboard(QWidget):
         if dialog.exec():
             self.load_data()
 
-
     def edit_employee(self):
         row = self.table.currentRow()
         if row < 0:
             QMessageBox.warning(self, "Atenção", "Selecione um funcionário.")
             return
-        QMessageBox.information(
-            self, "Editar Funcionário",
-            "Aqui você pode editar o funcionário selecionado."
-        )
+
+        employee = self.employees[row]
+        dialog = EmployeeFormDialog(self, employee)
+        if dialog.exec():
+            self.load_data()
 
     def delete_employee(self):
         row = self.table.currentRow()
@@ -200,13 +202,14 @@ class AdminDashboard(QWidget):
             QMessageBox.warning(self, "Atenção", "Selecione um funcionário.")
             return
 
+        employee = self.employees[row]
+
         confirm = QMessageBox.question(
             self,
             "Confirmar Exclusão",
-            "Deseja realmente excluir este funcionário?"
+            f"Deseja realmente excluir {employee['name']}?"
         )
 
         if confirm == QMessageBox.StandardButton.Yes:
-            QMessageBox.information(
-                self, "Excluído", "Funcionário removido com sucesso."
-            )
+            self.employee_controller.delete(employee["id"])
+            self.load_data()

@@ -2,47 +2,50 @@ from PyQt6.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout,
     QLabel, QLineEdit, QPushButton, QMessageBox
 )
-from PyQt6.QtCore import Qt
 
 from controllers.employee_controller import EmployeeController
 
 
 class EmployeeFormDialog(QDialog):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, employee=None):
         super().__init__(parent)
-        self.setWindowTitle("Novo Funcionário")
-        self.setFixedSize(400, 260)
 
+        self.employee = employee
         self.controller = EmployeeController()
 
+        self.setFixedSize(400, 260)
+        self.setWindowTitle(
+            "Editar Funcionário" if employee else "Novo Funcionário"
+        )
+
         self.init_ui()
+
+        if self.employee:
+            self.fill_form()
 
     def init_ui(self):
         layout = QVBoxLayout(self)
         layout.setSpacing(16)
         layout.setContentsMargins(24, 24, 24, 24)
 
-        # TÍTULO
-        title = QLabel("Cadastrar Funcionário")
+        title = QLabel(
+            "Editar Funcionário" if self.employee else "Cadastrar Funcionário"
+        )
         title.setObjectName("DialogTitle")
         layout.addWidget(title)
 
-        #  NOME 
         self.input_name = QLineEdit()
         self.input_name.setPlaceholderText("Nome do funcionário")
         layout.addWidget(self.input_name)
 
-        # CARGO
         self.input_role = QLineEdit()
         self.input_role.setPlaceholderText("Cargo")
         layout.addWidget(self.input_role)
 
-        #DEPARTAMENTO 
         self.input_department = QLineEdit()
         self.input_department.setPlaceholderText("Departamento")
         layout.addWidget(self.input_department)
 
-        # BOTÕES 
         buttons = QHBoxLayout()
         buttons.addStretch()
 
@@ -54,8 +57,12 @@ class EmployeeFormDialog(QDialog):
 
         buttons.addWidget(btn_cancel)
         buttons.addWidget(btn_save)
-
         layout.addLayout(buttons)
+
+    def fill_form(self):
+        self.input_name.setText(self.employee["name"])
+        self.input_role.setText(self.employee["role"])
+        self.input_department.setText(self.employee["department"])
 
     def save(self):
         name = self.input_name.text().strip()
@@ -63,23 +70,18 @@ class EmployeeFormDialog(QDialog):
         department = self.input_department.text().strip()
 
         if not name or not role or not department:
-            QMessageBox.warning(
-                self,
-                "Erro",
-                "Preencha todos os campos."
-            )
+            QMessageBox.warning(self, "Erro", "Preencha todos os campos.")
             return
 
-        self.controller.create({
+        data = {
             "name": name,
             "role": role,
             "department": department
-        })
+        }
 
-        QMessageBox.information(
-            self,
-            "Sucesso",
-            "Funcionário cadastrado com sucesso!"
-        )
+        if self.employee:
+            self.controller.update(self.employee["id"], data)
+        else:
+            self.controller.create(data)
 
         self.accept()

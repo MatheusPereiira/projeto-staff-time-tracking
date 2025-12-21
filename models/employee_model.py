@@ -21,20 +21,23 @@ class EmployeeModel:
 
         employees.append(new_employee)
         self.storage.write(employees)
-
         return new_employee
 
     def delete(self, employee_id: str):
         employees = self.storage.read()
-        employees = [e for e in employees if e["id"] != employee_id]
-        self.storage.write(employees)
+        new_list = [e for e in employees if e["id"] != employee_id]
+        self.storage.write(new_list)
+        return True
 
     def update(self, employee_id: str, data: dict):
         employees = self.storage.read()
 
         for emp in employees:
             if emp["id"] == employee_id:
-                emp.update(data)
+                emp["name"] = data["name"]
+                emp["role"] = data["role"]
+                emp["department"] = data["department"]
                 break
 
         self.storage.write(employees)
+        return True
