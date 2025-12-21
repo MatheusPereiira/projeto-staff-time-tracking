@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel,
     QPushButton, QTableWidget, QTableWidgetItem,
-    QHeaderView, QMessageBox
+    QHeaderView, QMessageBox, QLineEdit
 )
 from PyQt6.QtCore import Qt
 
@@ -20,11 +20,12 @@ class AdminDashboard(QWidget):
         self.employee_controller = EmployeeController()
         self.report_controller = ReportController()
 
+        self.employees = []
+
         self.init_ui()
         self.load_data()
 
-    # ================= UI =================
-
+    #UI 
     def init_ui(self):
         main_layout = QVBoxLayout(self)
         main_layout.setSpacing(20)
@@ -51,7 +52,7 @@ class AdminDashboard(QWidget):
 
         main_layout.addLayout(cards_layout)
 
-        # AÇÕES GERAIS (Relatórios / Atualizar)
+        # AÇÕES GERAIS
         actions_layout = QHBoxLayout()
         actions_layout.addStretch()
 
@@ -65,6 +66,28 @@ class AdminDashboard(QWidget):
         actions_layout.addWidget(btn_refresh)
 
         main_layout.addLayout(actions_layout)
+
+        # 🔍 FILTROS
+        filter_layout = QHBoxLayout()
+
+        self.search_name = QLineEdit()
+        self.search_name.setPlaceholderText("Buscar por nome...")
+        self.search_name.textChanged.connect(self.filter_employees)
+
+        self.search_role = QLineEdit()
+        self.search_role.setPlaceholderText("Buscar por cargo...")
+        self.search_role.textChanged.connect(self.filter_employees)
+
+        self.search_department = QLineEdit()
+        self.search_department.setPlaceholderText("Buscar por departamento...")
+        self.search_department.textChanged.connect(self.filter_employees)
+
+        filter_layout.addWidget(self.search_name)
+        filter_layout.addWidget(self.search_role)
+        filter_layout.addWidget(self.search_department)
+        filter_layout.addStretch()
+
+        main_layout.addLayout(filter_layout)
 
         # AÇÕES DA TABELA
         table_actions = QHBoxLayout()
@@ -105,7 +128,7 @@ class AdminDashboard(QWidget):
 
         main_layout.addWidget(self.table)
 
-    # ================= COMPONENTES =================
+    #COMPONENTES
 
     def create_card(self, title_text):
         card = QWidget()
@@ -145,7 +168,7 @@ class AdminDashboard(QWidget):
         card.value_label = value
         return card
 
-    # ================= DADOS =================
+    #DADOS 
 
     def load_data(self):
         self.employees = self.employee_controller.all()
@@ -168,13 +191,32 @@ class AdminDashboard(QWidget):
         else:
             self.card_highlight.value_label.setText("-")
 
-        self.table.setRowCount(len(self.employees))
-        for row, emp in enumerate(self.employees):
+        self.populate_table(self.employees)
+
+    def populate_table(self, employees):
+        self.table.setRowCount(len(employees))
+        for row, emp in enumerate(employees):
             self.table.setItem(row, 0, QTableWidgetItem(emp["name"]))
             self.table.setItem(row, 1, QTableWidgetItem(emp["role"]))
             self.table.setItem(row, 2, QTableWidgetItem(emp["department"]))
 
-    # ================= AÇÕES =================
+    #FILTRO
+
+    def filter_employees(self):
+        name_filter = self.search_name.text().lower()
+        role_filter = self.search_role.text().lower()
+        department_filter = self.search_department.text().lower()
+
+        filtered = [
+            emp for emp in self.employees
+            if name_filter in emp["name"].lower()
+            and role_filter in emp["role"].lower()
+            and department_filter in emp["department"].lower()
+        ]
+
+        self.populate_table(filtered)
+
+    #AÇÕES
 
     def open_reports(self):
         self.reports_window = AdminReportsView()
