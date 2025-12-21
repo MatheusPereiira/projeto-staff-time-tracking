@@ -8,5 +8,11 @@
         "username": "matheus",
         "password": "$2b$12$a4w56OUslKaVOcGkr7lJD.jz32x/XAieLnQ4am4NgxY68V/wH6W0e",
         "role": "employee"
+    },
+    {
+        "id": "247bce75-9c47-47b1-bcbf-321a0e2ad13d",
+        "username": "gustavo",
+        "password": "$2b$12$hau6PpeT4AbUCLnQug2rPOr1eK/VcN3xzsLTey.CoS7tuENFdtAw6",
+        "role": "employee"
     }
 ]

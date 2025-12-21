@@ -1,18 +1,40 @@
 from models.employee_model import EmployeeModel
+from models.user_model import UserModel
+from utils.security import hash_password
 
 
 class EmployeeController:
     def __init__(self):
-        self.model = EmployeeModel()
+        self.employee_model = EmployeeModel()
+        self.user_model = UserModel()
 
     def all(self):
-        return self.model.all()
+        return self.employee_model.all()
 
-    def create(self, data: dict):
-        return self.model.create(data)
+    def create_with_user(self, data: dict):
+        user = self.user_model.add({
+            "username": data["username"],
+            "password": hash_password(data["password"]),
+            "role": "employee"
+        })
+
+        employee = self.employee_model.create({
+            "name": data["name"],
+            "role": data["role"],
+            "department": data["department"],
+            "user_id": user["id"]
+        })
+
+        return employee
+
+    def get_by_username(self, username: str):
+        user = self.user_model.find_by_username(username)
+        if not user:
+            return None
+        return self.employee_model.get_by_user_id(user["id"])
 
     def delete(self, employee_id: str):
-        return self.model.delete(employee_id)
+        self.employee_model.delete(employee_id)
 
     def update(self, employee_id: str, data: dict):
-        return self.model.update(employee_id, data)
+        self.employee_model.update(employee_id, data)
