@@ -7,7 +7,7 @@ from controllers.punch_controller import PunchController
 from views.reports_view import ReportsView
 
 
-class EmployeeDashboard(QWidget): 
+class EmployeeDashboard(QWidget):
     def __init__(self, employee):
         super().__init__()
 
@@ -17,10 +17,10 @@ class EmployeeDashboard(QWidget):
         self.setWindowTitle("Registro de Ponto")
         self.setFixedSize(400, 420)
 
-        layout = QVBoxLayout()
+        layout = QVBoxLayout(self)
 
         label_employee = QLabel(f"Funcionário: {employee['name']}")
-        label_user = QLabel(f"Usuário: {employee['username']}")
+        label_user = QLabel(f"Usuário: {employee['user_username']}")
 
         layout.addWidget(label_employee)
         layout.addWidget(label_user)
@@ -42,8 +42,6 @@ class EmployeeDashboard(QWidget):
         layout.addWidget(btn_return)
         layout.addWidget(btn_exit)
         layout.addWidget(btn_report)
-
-        self.setLayout(layout)
 
     def register(self, punch_type):
         try:

@@ -1,23 +1,9 @@
 [
     {
-        "id": "2cb20c88-06a8-447e-b5f7-cc407e60e415",
-        "name": "Matheus Pereira Silva",
-        "username": "matheus",
-        "role": "Developer",
-        "department": "Ti"
-    },
-    {
-        "id": 2,
-        "name": "Phelipe Harry",
-        "username": "phelippe",
-        "role": "QA",
-        "department": "Ti"
-    },
-    {
-        "id": "aa3927d8-6caf-491e-a8b0-16aa1150b74d",
-        "name": "Gustavo Furtado",
-        "role": "QA",
+        "id": "4cad0498-50b8-4954-9312-6e3ae6e07810",
+        "name": "Matheus Pereira",
+        "role": "Dev",
         "department": "Ti",
-        "user_id": "247bce75-9c47-47b1-bcbf-321a0e2ad13d"
+        "user_username": "matheus"
     }
 ]

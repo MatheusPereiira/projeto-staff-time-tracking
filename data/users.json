@@ -14,5 +14,11 @@
         "username": "gustavo",
         "password": "$2b$12$hau6PpeT4AbUCLnQug2rPOr1eK/VcN3xzsLTey.CoS7tuENFdtAw6",
         "role": "employee"
+    },
+    {
+        "id": "c6238b17-f7a4-439e-bee0-caae78ac0de5",
+        "username": "matheus",
+        "password": "123",
+        "role": "employee"
     }
 ]

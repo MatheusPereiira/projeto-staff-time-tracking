@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import (
-    QWidget, QVBoxLayout, QLabel, QLineEdit,
-    QPushButton, QMessageBox
+    QWidget, QVBoxLayout, QLabel,
+    QLineEdit, QPushButton, QMessageBox
 )
 
 from controllers.auth_controller import AuthController
@@ -12,50 +12,49 @@ from views.employee_dashboard import EmployeeDashboard
 class LoginView(QWidget):
     def __init__(self):
         super().__init__()
-        self.auth = AuthController()
+
+        self.setWindowTitle("Login")
+        self.setFixedSize(360, 260)
+
+        self.auth_controller = AuthController()
         self.employee_controller = EmployeeController()
 
-        self.setWindowTitle("Folha de Ponto - Login")
-        self.setFixedSize(300, 220)
+        layout = QVBoxLayout(self)
 
-        layout = QVBoxLayout()
+        title = QLabel("Acesso ao Sistema")
+        title.setObjectName("LoginTitle")
 
-        self.user_input = QLineEdit()
-        self.user_input.setPlaceholderText("Usuário")
+        self.input_username = QLineEdit()
+        self.input_username.setPlaceholderText("Usuário")
 
-        self.password_input = QLineEdit()
-        self.password_input.setPlaceholderText("Senha")
-        self.password_input.setEchoMode(QLineEdit.EchoMode.Password)
+        self.input_password = QLineEdit()
+        self.input_password.setPlaceholderText("Senha")
+        self.input_password.setEchoMode(QLineEdit.EchoMode.Password)
 
-        btn = QPushButton("Entrar")
-        btn.clicked.connect(self.login)
+        btn_login = QPushButton("Entrar")
+        btn_login.clicked.connect(self.login)
 
-        layout.addWidget(QLabel("Login"))
-        layout.addWidget(self.user_input)
-        layout.addWidget(self.password_input)
-        layout.addWidget(btn)
-
-        self.setLayout(layout)
+        layout.addWidget(title)
+        layout.addWidget(self.input_username)
+        layout.addWidget(self.input_password)
+        layout.addWidget(btn_login)
 
     def login(self):
-        username = self.user_input.text().strip()
-        password = self.password_input.text().strip()
+        username = self.input_username.text().strip()
+        password = self.input_password.text().strip()
 
-        user = self.auth.login(username, password)
+        user = self.auth_controller.login(username, password)
 
         if not user:
             QMessageBox.warning(self, "Erro", "Usuário ou senha inválidos")
             return
 
-        # 🔐 ADMIN
         if user["role"] == "admin":
-            QMessageBox.information(self, "Sucesso", "Bem-vindo, administrador!")
             self.dashboard = AdminDashboard()
             self.dashboard.show()
             self.close()
             return
 
-        # 👤 FUNCIONÁRIO
         employee = self.employee_controller.get_by_username(username)
 
         if not employee:
@@ -65,12 +64,6 @@ class LoginView(QWidget):
                 "Usuário válido, mas funcionário não cadastrado"
             )
             return
-
-        QMessageBox.information(
-            self,
-            "Sucesso",
-            f"Bem-vindo, {employee['name']}!"
-        )
 
         self.dashboard = EmployeeDashboard(employee)
         self.dashboard.show()

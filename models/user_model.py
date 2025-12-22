@@ -10,22 +10,20 @@ class UserModel:
         return self.storage.read()
 
     def find_by_username(self, username: str):
-        for user in self.all():
+        users = self.storage.read()
+        for user in users:
             if user["username"] == username:
                 return user
         return None
 
-    def add(self, data: dict):
-        users = self.all()
-
-        if self.find_by_username(data["username"]):
-            raise ValueError("Usuário já existe.")
+    def create(self, data: dict):
+        users = self.storage.read()
 
         new_user = {
             "id": str(uuid.uuid4()),
             "username": data["username"],
-            "password": data["password"],
-            "role": data.get("role", "employee")
+            "password": data["password"],  
+            "role": data["role"]
         }
 
         users.append(new_user)

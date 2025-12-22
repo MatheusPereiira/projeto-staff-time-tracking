@@ -9,38 +9,40 @@ from controllers.employee_controller import EmployeeController
 class EmployeeFormDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.controller = EmployeeController()
-
         self.setWindowTitle("Novo Funcionário")
         self.setFixedSize(420, 360)
 
+        self.controller = EmployeeController()
         self.init_ui()
 
     def init_ui(self):
         layout = QVBoxLayout(self)
+        layout.setSpacing(14)
 
-        layout.addWidget(QLabel("Nome do Funcionário"))
-        self.name = QLineEdit()
-        layout.addWidget(self.name)
+        self.input_name = QLineEdit()
+        self.input_name.setPlaceholderText("Nome do funcionário")
 
-        layout.addWidget(QLabel("Cargo"))
-        self.role = QLineEdit()
-        layout.addWidget(self.role)
+        self.input_role = QLineEdit()
+        self.input_role.setPlaceholderText("Cargo")
 
-        layout.addWidget(QLabel("Departamento"))
-        self.department = QLineEdit()
-        layout.addWidget(self.department)
+        self.input_department = QLineEdit()
+        self.input_department.setPlaceholderText("Departamento")
 
-        layout.addWidget(QLabel("Usuário de Acesso"))
-        self.username = QLineEdit()
-        layout.addWidget(self.username)
+        self.input_username = QLineEdit()
+        self.input_username.setPlaceholderText("Usuário de acesso")
 
-        layout.addWidget(QLabel("Senha Inicial"))
-        self.password = QLineEdit()
-        self.password.setEchoMode(QLineEdit.EchoMode.Password)
-        layout.addWidget(self.password)
+        self.input_password = QLineEdit()
+        self.input_password.setPlaceholderText("Senha inicial")
+        self.input_password.setEchoMode(QLineEdit.EchoMode.Password)
+
+        layout.addWidget(self.input_name)
+        layout.addWidget(self.input_role)
+        layout.addWidget(self.input_department)
+        layout.addWidget(self.input_username)
+        layout.addWidget(self.input_password)
 
         buttons = QHBoxLayout()
+
         btn_cancel = QPushButton("Cancelar")
         btn_cancel.clicked.connect(self.reject)
 
@@ -49,30 +51,32 @@ class EmployeeFormDialog(QDialog):
 
         buttons.addWidget(btn_cancel)
         buttons.addWidget(btn_save)
+
         layout.addLayout(buttons)
 
     def save(self):
-        if not all([
-            self.name.text().strip(),
-            self.role.text().strip(),
-            self.department.text().strip(),
-            self.username.text().strip(),
-            self.password.text().strip()
-        ]):
+        name = self.input_name.text().strip()
+        role = self.input_role.text().strip()
+        department = self.input_department.text().strip()
+        username = self.input_username.text().strip()
+        password = self.input_password.text().strip()
+
+        if not all([name, role, department, username, password]):
             QMessageBox.warning(self, "Erro", "Preencha todos os campos.")
             return
 
-        try:
-            self.controller.create_with_user({
-                "name": self.name.text().strip(),
-                "role": self.role.text().strip(),
-                "department": self.department.text().strip(),
-                "username": self.username.text().strip(),
-                "password": self.password.text().strip()
-            })
-        except ValueError as e:
-            QMessageBox.warning(self, "Erro", str(e))
-            return
+        self.controller.create_with_user({
+            "name": name,
+            "role": role,
+            "department": department,
+            "username": username,
+            "password": password
+        })
 
-        QMessageBox.information(self, "Sucesso", "Funcionário cadastrado com sucesso!")
+        QMessageBox.information(
+            self,
+            "Sucesso",
+            "Funcionário e usuário criados com sucesso!"
+        )
+
         self.accept()
