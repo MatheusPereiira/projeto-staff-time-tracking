@@ -10,12 +10,13 @@ class PunchController:
         punches = self.model.all()
 
         last = None
-        if punches:
-            last = punches[-1]
+        for p in reversed(punches):
+            if p["employee_id"] == employee_id:
+                last = p
+                break
 
-        if last and last["employee_id"] == employee_id:
-            if last["type"] == punch_type:
-                raise ValueError("Esse ponto já foi registrado.")
+        if last and last["type"] == punch_type:
+            raise ValueError("Esse ponto já foi registrado.")
 
         punch = {
             "employee_id": employee_id,
@@ -26,29 +27,21 @@ class PunchController:
         self.model.add(punch)
 
     def list_by_employee(self, employee_id):
-        return [
-            p for p in self.model.all()
-            if p["employee_id"] == employee_id
-        ]
+        punches = self.model.all()
+        return [p for p in punches if p["employee_id"] == employee_id]
 
-    def list_filtered(self, employee_id, start_date, end_date, punch_type=None):
-        result = []
+    #STATUS ATUAL
+    def get_current_status(self, employee_id):
+        punches = self.list_by_employee(employee_id)
 
-        for p in self.model.all():
-            if p["employee_id"] != employee_id:
-                continue
+        if not punches:
+            return "fora"
 
-            date = datetime.fromisoformat(p["timestamp"]).date()
+        last_type = punches[-1]["type"]
 
-            if not (start_date <= date <= end_date):
-                continue
-
-            if punch_type and punch_type != "todos":
-                if p["type"] != punch_type:
-                    continue
-
-            result.append(p)
-
-        return result
- 
- 
+        if last_type in ("entrada", "retorno"):
+            return "trabalhando"
+        elif last_type == "intervalo":
+            return "intervalo"
+        else:
+            return "fora"
