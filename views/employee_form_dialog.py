@@ -1,9 +1,10 @@
 from PyQt6.QtWidgets import (
-    QDialog, QVBoxLayout, QHBoxLayout,
-    QLabel, QLineEdit, QPushButton, QMessageBox
+    QDialog, QVBoxLayout, QLineEdit, QPushButton,
+    QMessageBox, QHBoxLayout
 )
 
 from controllers.employee_controller import EmployeeController
+from models.user_model import UserModel
 
 
 class EmployeeFormDialog(QDialog):
@@ -11,102 +12,94 @@ class EmployeeFormDialog(QDialog):
         super().__init__(parent)
 
         self.employee = employee
-        self.controller = EmployeeController()
+        self.employee_controller = EmployeeController()
+        self.user_model = UserModel()
 
         self.setWindowTitle(
             "Editar Funcionário" if self.employee else "Novo Funcionário"
         )
-        self.setFixedSize(420, 360)
+        self.setFixedWidth(420)
 
         self.init_ui()
 
-        if self.employee:
-            self.load_employee()
-
     def init_ui(self):
         layout = QVBoxLayout(self)
-        layout.setSpacing(14)
 
-        self.input_name = QLineEdit()
-        self.input_name.setPlaceholderText("Nome do funcionário")
+        self.name_input = QLineEdit()
+        self.name_input.setPlaceholderText("Nome")
 
-        self.input_role = QLineEdit()
-        self.input_role.setPlaceholderText("Cargo")
+        self.role_input = QLineEdit()
+        self.role_input.setPlaceholderText("Cargo")
 
-        self.input_department = QLineEdit()
-        self.input_department.setPlaceholderText("Departamento")
+        self.department_input = QLineEdit()
+        self.department_input.setPlaceholderText("Departamento")
 
-        self.input_username = QLineEdit()
-        self.input_username.setPlaceholderText("Usuário de acesso")
+        self.username_input = QLineEdit()
+        self.username_input.setPlaceholderText("Usuário")
 
-        self.input_password = QLineEdit()
-        self.input_password.setPlaceholderText("Senha inicial")
-        self.input_password.setEchoMode(QLineEdit.EchoMode.Password)
+        self.password_input = QLineEdit()
+        self.password_input.setPlaceholderText("Nova senha (opcional)")
+        self.password_input.setEchoMode(QLineEdit.EchoMode.Password)
 
-        layout.addWidget(self.input_name)
-        layout.addWidget(self.input_role)
-        layout.addWidget(self.input_department)
-        layout.addWidget(self.input_username)
-        layout.addWidget(self.input_password)
+        # Se for edição, preenche campos
+        if self.employee:
+            self.name_input.setText(self.employee.get("name", ""))
+            self.role_input.setText(self.employee.get("role", ""))
+            self.department_input.setText(self.employee.get("department", ""))
+            self.username_input.setText(self.employee.get("user_username", ""))
 
-        buttons = QHBoxLayout()
+        btn_layout = QHBoxLayout()
 
-        btn_cancel = QPushButton("Cancelar")
-        btn_cancel.clicked.connect(self.reject)
+        cancel_btn = QPushButton("Cancelar")
+        save_btn = QPushButton("Salvar")
 
-        btn_save = QPushButton("Salvar")
-        btn_save.clicked.connect(self.save)
+        cancel_btn.clicked.connect(self.reject)
+        save_btn.clicked.connect(self.save)
 
-        buttons.addWidget(btn_cancel)
-        buttons.addWidget(btn_save)
+        btn_layout.addWidget(cancel_btn)
+        btn_layout.addWidget(save_btn)
 
-        layout.addLayout(buttons)
-
-    def load_employee(self):
-        self.input_name.setText(self.employee["name"])
-        self.input_role.setText(self.employee["role"])
-        self.input_department.setText(self.employee["department"])
-        self.input_username.setText(self.employee["user_username"])
-
-        # senha opcional ao editar
-        self.input_password.setPlaceholderText("Nova senha (opcional)")
+        layout.addWidget(self.name_input)
+        layout.addWidget(self.role_input)
+        layout.addWidget(self.department_input)
+        layout.addWidget(self.username_input)
+        layout.addWidget(self.password_input)
+        layout.addLayout(btn_layout)
 
     def save(self):
-        name = self.input_name.text().strip()
-        role = self.input_role.text().strip()
-        department = self.input_department.text().strip()
-        username = self.input_username.text().strip()
-        password = self.input_password.text().strip()
+        name = self.name_input.text().strip()
+        role = self.role_input.text().strip()
+        department = self.department_input.text().strip()
+        username = self.username_input.text().strip()
+        password = self.password_input.text().strip()
 
-        if not all([name, role, department, username]):
+        if not name or not role or not department or not username:
             QMessageBox.warning(self, "Erro", "Preencha todos os campos obrigatórios.")
             return
 
+        # EDITAR
         if self.employee:
-            # EDITAR
-            self.controller.update(
+            self.employee_controller.update(
                 self.employee["id"],
                 {
                     "name": name,
                     "role": role,
-                    "department": department,
-                    "user_username": username
-                },
-                password=password if password else None
+                    "department": department
+                }
             )
+
+            if password:
+                self.user_model.update_password(username, password)
+
+        # NOVO
         else:
-            # CRIAR
-            if not password:
-                QMessageBox.warning(self, "Erro", "Informe a senha inicial.")
-                return
+            self.employee_controller.create(
+                name=name,
+                role=role,
+                department=department,
+                username=username,
+                password=password or "123456"
+            )
 
-            self.controller.create_with_user({
-                "name": name,
-                "role": role,
-                "department": department,
-                "username": username,
-                "password": password
-            })
-
-        QMessageBox.information(self, "Sucesso", "Dados salvos com sucesso!")
+        QMessageBox.information(self, "Sucesso", "Funcionário salvo com sucesso.")
         self.accept()

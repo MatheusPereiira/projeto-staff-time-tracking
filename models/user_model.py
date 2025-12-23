@@ -1,31 +1,31 @@
-import uuid
 from utils.json_manager import JsonManager
+from utils.security import hash_password
 
 
 class UserModel:
     def __init__(self):
         self.storage = JsonManager("data/users.json")
 
+
     def all(self):
         return self.storage.read()
 
-    def find_by_username(self, username: str):
+    def find_by_username(self, username):
         users = self.storage.read()
         for user in users:
             if user["username"] == username:
                 return user
         return None
 
-    def create(self, data: dict):
+    def create(self, data):
         users = self.storage.read()
-
-        new_user = {
-            "id": str(uuid.uuid4()),
-            "username": data["username"],
-            "password": data["password"],  
-            "role": data["role"]
-        }
-
-        users.append(new_user)
+        users.append(data)
         self.storage.write(users)
-        return new_user
+
+    def update_password(self, username, new_password):
+        users = self.storage.read()
+        for user in users:
+            if user["username"] == username:
+                user["password"] = hash_password(new_password)
+                break
+        self.storage.write(users)
