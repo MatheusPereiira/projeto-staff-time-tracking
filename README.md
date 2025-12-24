@@ -123,8 +123,8 @@ A aplicação é dividida em dois módulos principais:
 
 # 🛠️ Tecnologias Utilizadas
 
-| Categoria  | Tecnologia  |
-|--------------------------|
+| Categoria | Tecnologia |
+|--------|-----------|
 | Linguagem | Python 3.11+ |
 | GUI | PyQt6 |
 | Armazenamento | JSON |
