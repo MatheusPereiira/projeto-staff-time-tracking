@@ -116,7 +116,7 @@ A aplicação é dividida em dois módulos principais:
 
 ## 📈 Gráfico de Funcionário
 <p align="center">
-  <img src="screenshot/grafico_funcionarios" width="70%">
+  <img src="screenshot/grafico_funcionarios.png" width="70%">
 </p>
 
 ---
