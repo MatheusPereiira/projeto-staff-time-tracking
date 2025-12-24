@@ -157,7 +157,7 @@ class EmployeeDashboard(QWidget):
         m = (self.seconds_worked % 3600) // 60
         s = self.seconds_worked % 60
         self.work_label.setText(
-            f"Tempo trabalhado: {h:02d}:{m:02d}:{s:02d}"
+            f"Timer: {h:02d}:{m:02d}:{s:02d}"
         )
 
     #  STATUS 
