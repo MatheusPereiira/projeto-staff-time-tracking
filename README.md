@@ -86,13 +86,6 @@ A aplicação é dividida em dois módulos principais:
 
 ---
 
-## 📊 Relatório de Horas do Funcionário
-<p align="center">
-  <img src="screenshot/employee_report.png" width="85%">
-</p>
-
----
-
 ## 🛠️ Dashboard Administrativo
 <p align="center">
   <img src="screenshot/painel_principal_admin.png" width="90%">
